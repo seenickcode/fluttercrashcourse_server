@@ -1,0 +1,5 @@
+[app]
+fcc-prod-app-01 ansible_host=167.99.10.81
+
+[app:vars]
+

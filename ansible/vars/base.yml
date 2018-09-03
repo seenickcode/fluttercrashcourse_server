@@ -1,0 +1,15 @@
+---
+
+app_name: "fluttercrashcourse_server"
+app_user: "root"
+home_path: "/{{ app_user }}"
+app_path: "/{{ home_path }}/{{ app_name }}"
+update_apt_cache: true
+
+depkey_name_pub: "fcc-prod-depkey.pub"
+depkey_name_priv: "fcc-prod-depkey"
+
+git_repo: "git@github.com:seenickcode/fluttercrashcourse_server.git"
+git_keypath: "{{ home_path }}/.ssh"
+git_keyfile: "{{ git_keypath }}/{{ depkey_name_priv }}"
+git_branch: "master"

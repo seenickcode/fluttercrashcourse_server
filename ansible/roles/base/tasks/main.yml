@@ -1,0 +1,103 @@
+---
+
+
+- name: Ensure bash, git, mecurial and bazar are the latest versions
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=latest
+  with_items:
+    - bash
+    - openssl
+    - libssl-dev
+    - libssl-doc
+
+- name: Install base packages
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=installed
+  with_items:
+    - build-essential
+    - git
+    - supervisor
+  tags: packages
+
+- name: Install Supervisor
+  apt: name=supervisor update_cache={{ update_apt_cache }} state=installed
+
+- name: Ensure supervisor service is started
+  service: name=supervisor state=started enabled=yes
+
+- name: Add supervisor alias
+  lineinfile: dest="{{ home_path }}/.bashrc"
+              line="alias sv='supervisorctl'"
+              state=present
+              insertafter=EOF
+
+- name: Add ssh_config file so we can git pull
+  become: true
+  become_user: "{{ app_user }}"
+  copy: src="{{ role_path }}/files/ssh_config"
+    dest="{{ home_path }}/.ssh/config"
+    mode=0600
+
+- name: Copy the SSH public key file
+  become: true
+  become_user: "{{ app_user }}"
+  copy: src="{{ depkey_file_pub }}"
+    dest="{{ git_keypath }}/{{ depkey_name_pub }}"
+    mode=0600
+
+- name: Copy the SSH private key file
+  become: true
+  become_user: "{{ app_user }}"
+  copy: src="{{ depkey_file_priv }}"
+    dest="{{ git_keypath }}/{{ depkey_name_priv }}"
+    mode=0600
+
+# TODO get working in li
+# - name: Add SSH deploy key
+#   authorized_key:
+#     user: root
+#     state: present
+#     manage_dir: yes
+#     key: "{{ lookup('file', '{{ role_path }}/files/{{ ssh_depkey_pub }}') }}"
+
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+- name: Setup the Git repo
+  become: true
+  become_user: "{{ app_user }}"
+  git: repo={{ git_repo }} dest={{ app_path }} key_file={{ git_keyfile }} version={{ git_branch }} accept_hostkey=true force=true
+
+- name: Install apt-transport-https required by Dart
+  apt: pkg=apt-transport-https update_cache=yes state=latest
+
+- name: Get the Dart package signing key
+  apt_key: url=https://dl-ssl.google.com/linux/linux_signing_key.pub state=present
+
+- name: Set up the location of the stable repository
+  get_url: url=https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list dest=/etc/apt/sources.list.d/dart_stable.list mode=0644
+
+- name: apt update
+  apt: name=dart update_cache=yes state=present
+
+- name: Add Dart to path
+  lineinfile: dest={{ home_path }}/.bashrc regexp="/usr/lib/dart/bin" line="PATH=\"$PATH:/usr/lib/dart/bin:{{ home_path }}/.pub-cache/bin\""
+
+# NOTE not working, so we'll use run aqueduct directly
+# - name: Source .bashrc
+#   become_user: "{{ app_user }}"
+#   command: "source {{ home_path }}/.bashrc"
+
+# NOTE not working
+# - name: Activate Acqueduct 
+#   shell: /usr/lib/dart/bin/pub global activate aqueduct
+
+- name: Create the Supervisor config file for {{ goapp_name }}
+  template: src=supervisor.conf.j2
+    dest=/etc/supervisor/conf.d/{{ app_name }}.conf
+
+- name: Re-read the Supervisor config files
+  command: supervisorctl reread
+
+- name: Update Supervisor to add the app in the process group
+  command: supervisorctl update

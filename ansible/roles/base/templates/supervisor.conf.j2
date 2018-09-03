@@ -1,0 +1,12 @@
+[program:{{ app_name }}]
+command=aqueduct serve
+autostart=true
+autorestart=true
+startsecs=5
+startretries=10
+user={{ app_user }}
+directory={{ app_path }}
+redirect_stderr=true
+stdout_logfile={{ home_path }}/{{ app_name }}.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=10
