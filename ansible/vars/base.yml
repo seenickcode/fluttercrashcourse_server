@@ -3,7 +3,7 @@
 app_name: "fluttercrashcourse_server"
 app_user: "root"
 home_path: "/{{ app_user }}"
-app_path: "/{{ home_path }}/{{ app_name }}"
+app_path: "{{ home_path }}/{{ app_name }}"
 update_apt_cache: true
 
 depkey_name_pub: "fcc-prod-depkey.pub"

@@ -83,14 +83,19 @@
 - name: Add Dart to path
   lineinfile: dest={{ home_path }}/.bashrc regexp="/usr/lib/dart/bin" line="PATH=\"$PATH:/usr/lib/dart/bin:{{ home_path }}/.pub-cache/bin\""
 
+
 # NOTE not working, so we'll use run aqueduct directly
 # - name: Source .bashrc
 #   become_user: "{{ app_user }}"
 #   command: "source {{ home_path }}/.bashrc"
 
-# NOTE not working
-# - name: Activate Acqueduct 
-#   shell: /usr/lib/dart/bin/pub global activate aqueduct
+- name: Activate Acqueduct 
+  shell: /usr/lib/dart/bin/pub global activate aqueduct
+
+- name: pub get
+  shell: /usr/lib/dart/bin/pub get
+  args:
+    chdir: "{{ app_path }}"
 
 - name: Create the Supervisor config file for {{ goapp_name }}
   template: src=supervisor.conf.j2
