@@ -28,7 +28,7 @@ class FluttercrashcourseServerChannel extends ApplicationChannel {
   Controller get entryPoint {
     final router = Router();
 
-    router.route('/locations').link(() => LocationsController());
+    router.route('/api/locations').link(() => LocationsController());
 
     // Prefer to use `link` instead of `linkFunction`.
     // See: https://aqueduct.io/docs/http/request_controller/
