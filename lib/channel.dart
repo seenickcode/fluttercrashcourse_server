@@ -1,5 +1,5 @@
+import 'controllers/locations_controller.dart';
 import 'fluttercrashcourse_server.dart';
-import 'locations_controller.dart';
 
 class FluttercrashcourseServerChannel extends ApplicationChannel {
   @override
