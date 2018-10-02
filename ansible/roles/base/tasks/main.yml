@@ -1,6 +1,3 @@
----
-
-
 - name: Ensure bash, git, mecurial and bazar are the latest versions
   apt: name={{ item }} update_cache={{ update_apt_cache }} state=latest
   with_items:
@@ -25,9 +22,9 @@
 
 - name: Add supervisor alias
   lineinfile: dest="{{ home_path }}/.bashrc"
-              line="alias sv='supervisorctl'"
-              state=present
-              insertafter=EOF
+    line="alias sv='supervisorctl'"
+    state=present
+    insertafter=EOF
 
 - name: Add ssh_config file so we can git pull
   become: true
@@ -83,13 +80,12 @@
 - name: Add Dart to path
   lineinfile: dest={{ home_path }}/.bashrc regexp="/usr/lib/dart/bin" line="PATH=\"$PATH:/usr/lib/dart/bin:{{ home_path }}/.pub-cache/bin\""
 
-
 # NOTE not working, so we'll use run aqueduct directly
 # - name: Source .bashrc
 #   become_user: "{{ app_user }}"
 #   command: "source {{ home_path }}/.bashrc"
 
-- name: Activate Acqueduct 
+- name: Activate Acqueduct
   shell: /usr/lib/dart/bin/pub global activate aqueduct
 
 - name: pub get
@@ -104,5 +100,8 @@
 - name: Re-read the Supervisor config files
   command: supervisorctl reread
 
-- name: Update Supervisor to add the app in the process group
+- name: Reload config and then add and remove as necessary (restarts programs)
   command: supervisorctl update
+
+- name: Restart our Supervisor app
+  command: supervisorctl restart {{ app_name }}
