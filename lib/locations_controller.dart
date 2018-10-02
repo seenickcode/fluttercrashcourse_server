@@ -6,7 +6,11 @@ import 'models/location_fact.dart';
 class LocationsController extends ResourceController {
   @Operation.get()
   Future<Response> fetchAll() async {
-    final locations = _items.values.map((item) => item.toJson()).toList();
+    final locations = _items.values.map((Location location) {
+      final map = location.toJson();
+      map.remove('facts');
+      return map;
+    }).toList();
     return Response.ok(locations);
   }
 
@@ -19,7 +23,7 @@ class LocationsController extends ResourceController {
     return Response.ok(location.toJson());
   }
 
-  final Map<int, dynamic> _items = {
+  final Map<int, Location> _items = {
     1: Location(
         id: 1,
         name: 'Arashiyama Bamboo Grove',
