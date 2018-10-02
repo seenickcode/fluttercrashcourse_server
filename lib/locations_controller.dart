@@ -3,9 +3,25 @@ import 'package:fluttercrashcourse_server/fluttercrashcourse_server.dart';
 import 'models/location.dart';
 import 'models/location_fact.dart';
 
-class LocationsController extends Controller {
-  final _items = [
-    Location(
+class LocationsController extends ResourceController {
+  @Operation.get()
+  Future<Response> fetchAll() async {
+    final locations = _items.values.map((item) => item.toJson()).toList();
+    return Response.ok(locations);
+  }
+
+  @Operation.get('id')
+  Future<Response> fetchOne(@Bind.path('id') int id) async {
+    final location = _items[id];
+    if (location == null) {
+      return Response.notFound();
+    }
+    return Response.ok(location.toJson());
+  }
+
+  final Map<int, dynamic> _items = {
+    1: Location(
+        id: 1,
         name: 'Arashiyama Bamboo Grove',
         url:
             'https://cdn-images-1.medium.com/max/2000/1*vdJuSUKWl_SA9Lp-32ebnA.jpeg',
@@ -18,8 +34,9 @@ class LocationsController extends Controller {
               title: 'How to Get There',
               text:
                   'Kyoto airport, with several terminals, is located 16 kilometres south of the city and is also known as Kyoto. Kyoto can also be reached by transport links from other regional airports.')
-        ]).toJson(),
-    Location(
+        ]),
+    2: Location(
+        id: 2,
         name: 'Mount Fuji',
         url:
             'https://exploreshizuoka.com/wp-content/uploads/sites/9/2018/03/Mount-Fuji-HEADERS19-6.jpg',
@@ -32,8 +49,9 @@ class LocationsController extends Controller {
               title: 'Did You Know',
               text:
                   'There are three cities that surround Mount Fuji: Gotemba, Fujiyoshida and Fujinomiya.')
-        ]).toJson(),
-    Location(
+        ]),
+    3: Location(
+        id: 3,
         name: 'Kiyomizu-dera',
         url:
             'https://media4.trover.com/T/5a97b80c8beb7fbf57002ffe/fixedw_large_4x.jpg',
@@ -45,8 +63,9 @@ class LocationsController extends Controller {
           LocationFact(
               title: 'Architectural Style',
               text: 'Japanese Buddhist architecture')
-        ]).toJson(),
-    Location(
+        ]),
+    4: Location(
+        id: 4,
         name: 'Kinkaku-ji',
         url:
             'https://cdn-images-1.medium.com/max/1600/1*sncLZ1eNLYk3s-v76nJn8w.jpeg',
@@ -59,8 +78,9 @@ class LocationsController extends Controller {
               title: 'Did You Know',
               text:
                   'The Golden Pavilion is set in a magnificent Japanese strolling garden.')
-        ]).toJson(),
-    Location(
+        ]),
+    5: Location(
+        id: 5,
         name: 'Odaiba',
         url:
             'https://jp.openrice.com/userphoto/Article/0/1/0000CM2AF2F38CD85AB341j.jpg',
@@ -73,11 +93,6 @@ class LocationsController extends Controller {
               title: 'Did You Know',
               text:
                   'The pedestrian path begins a short walk from Shibaura-futo Station along the Yurikamome on the "Tokyo side" of the bridge, while Odaiba Kaihinkoen Station is the nearest station on the "Odaiba side."')
-        ]).toJson(),
-  ];
-
-  @override
-  Future<RequestOrResponse> handle(Request request) async {
-    return Response.ok(_items);
-  }
+        ]),
+  };
 }
